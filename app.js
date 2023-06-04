@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
+  const solutions = document.querySelector(".solutions");
   const width = 5;
   const squares = [];
 
@@ -19,11 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to generate a random number between min and max (inclusive)
   const getRandomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  // Function to check if a number already exists in an array
-  const numberExistsInArray = (number, array) => {
-    return array.includes(number);
   };
 
   // Function to generate a 5x5 matrix with random numbers from 0 to 50
@@ -97,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let j = 0; j < width; j++) {
         const square = document.createElement("div");
         let randomColor = Math.floor(Math.random() * numberColors.length);
-        square.setAttribute("id", i);
+        square.setAttribute("id", `s-${matrix[i][j]}`);
         square.setAttribute("class", "square");
         square.style.backgroundColor = numberColors[randomColor];
         square.textContent = matrix[i][j];
@@ -107,8 +103,70 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // Phase solutions
+  const createSolutions = () => {
+    for (let i = 0; i < expectedResults.length; i++) {
+      const result = document.createElement("span");
+      result.setAttribute("id", `r-${expectedResults[i]}`);
+      result.textContent = expectedResults[i];
+      solutions.appendChild(result);
+    }
+  };
+
   createBoard();
+  createSolutions();
+
+  // PLayer actions
+
+  let firstClick = true;
+  let firstNumber = -1;
+  let firstSquareID;
+  let secondNumber = -1;
+  let secondSquareID;
+
+  function handleClick() {
+    if (firstClick) {
+      firstNumber = parseInt(this.textContent);
+      firstSquareID = this.id;
+      firstClick = false;
+    } else {
+      secondNumber = parseInt(this.textContent);
+      secondSquareID = this.id;
+    }
+
+    console.log(firstNumber);
+    console.log(secondNumber);
+
+    if (firstNumber >= 0 && secondNumber >= 0) {
+      // The result is a sum of the tow numbers
+      const result = firstNumber + secondNumber;
+
+      console.log(result);
+
+      if (expectedResults.includes(result)) {
+        const resultNumber = solutions.querySelector(`#r-${result}`);
+        resultNumber.style.color = "red";
+
+        console.log("acertou");
+
+        const currentNumber1 = document.querySelector(`#s-${firstNumber}`);
+        const currentNumber2 = document.querySelector(`#s-${secondNumber}`);
+
+        grid.removeChild(currentNumber1);
+        grid.removeChild(currentNumber2);
+      } else {
+        console.log("errou");
+      }
+
+      firstClick = true;
+      firstNumber = -1;
+      firstSquareID = "";
+      secondNumber = -1;
+      secondSquareID = "";
+    }
+  }
+
+  squares.forEach((square) => square.addEventListener("click", handleClick));
+
   console.log(expectedResults);
-  console.log(usedNumbers);
-  console.log(usedPositions);
 });
