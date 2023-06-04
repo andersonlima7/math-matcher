@@ -1,0 +1,23 @@
+.grid {
+  height: 350px;
+  width: 350px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid div {
+  height: 70px;
+  width: 70px;
+}
+
+.grid .square {
+  color: white;
+  font-size: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  cursor: pointer;
+}
