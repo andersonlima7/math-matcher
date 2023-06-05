@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let row = [];
 
       for (let j = 0; j < 5; j++) {
-        let randomNumber = getRandomNumber(0, 50);
+        let randomNumber = getRandomNumber(0, 30);
         row.push(randomNumber);
       }
 
@@ -38,6 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return matrix;
+  };
+
+  // Returns if an array has the passed array in it.
+  const isArrayInArray = (array, item) => {
+    const itemString = JSON.stringify(item);
+    const contains = array.some((arr) => {
+      return JSON.stringify(arr) === itemString;
+    });
+    return contains;
   };
 
   // Function to generate the list of expected results with the used numbers
@@ -54,18 +63,19 @@ document.addEventListener("DOMContentLoaded", () => {
       let column2;
 
       do {
-        row1 = getRandomNumber(0, 4);
-        column1 = getRandomNumber(0, 4);
+        let position1;
         let position2;
-        const position1 = [row1, column1];
         do {
+          row1 = getRandomNumber(0, 4);
+          column1 = getRandomNumber(0, 4);
+          position1 = [row1, column1];
           row2 = getRandomNumber(0, 4);
           column2 = getRandomNumber(0, 4);
           position2 = [row2, column2];
         } while (
-          [row1, column1].toString() === [row2, column2].toString() &&
-          usedPositions.includes(position1) &&
-          usedPositions.includes(position2)
+          [row1, column1].toString() === [row2, column2].toString() ||
+          isArrayInArray(usedPositions, position1) ||
+          isArrayInArray(usedPositions, position2)
         );
 
         const number1 = matrix[row1][column1];
@@ -93,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let j = 0; j < width; j++) {
         const square = document.createElement("div");
         let randomColor = Math.floor(Math.random() * numberColors.length);
-        square.setAttribute("id", `s-${matrix[i][j]}`);
+        square.setAttribute("id", `s-${i}${j}`);
         square.setAttribute("class", "square");
         square.style.backgroundColor = numberColors[randomColor];
         square.textContent = matrix[i][j];
@@ -136,6 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log(firstNumber);
     console.log(secondNumber);
+    console.log(firstSquareID);
+    console.log(secondSquareID);
 
     if (firstNumber >= 0 && secondNumber >= 0) {
       // The result is a sum of the tow numbers
@@ -149,11 +161,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("acertou");
 
-        const currentNumber1 = document.querySelector(`#s-${firstNumber}`);
-        const currentNumber2 = document.querySelector(`#s-${secondNumber}`);
+        const currentNumber1 = document.querySelector(`#${firstSquareID}`);
+        const currentNumber2 = document.querySelector(`#${secondSquareID}`);
 
-        grid.removeChild(currentNumber1);
-        grid.removeChild(currentNumber2);
+        currentNumber1.style.backgroundColor = "";
+        currentNumber1.style.color = "";
+        currentNumber1.textContent = "";
+        currentNumber2.style.backgroundColor = "";
+        currentNumber2.style.color = "";
+        currentNumber2.textContent = "";
       } else {
         console.log("errou");
       }
@@ -166,7 +182,85 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  squares.forEach((square) => square.addEventListener("click", handleClick));
+  /**
+   * Find the combinations of the target thar are present in the list
+   */
+  const findCombinations = (list, target) => {
+    const combinations = [];
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i; j < list.length; j++) {
+        if (list[i] + list[j] === target && i !== j) {
+          combinations.push([list[i], list[j]]);
+        }
+      }
+    }
+    return combinations;
+  };
 
-  console.log(expectedResults);
+  // Drop new numbers when some are cleared
+  const dropNewNumbers = () => {
+    for (let i = 0; i < width * width - width - 1; i++) {
+      const nextSquare = squares[i + width];
+      const currentSquare = squares[i];
+
+      const getNewNumbers = () => {
+        let randomColor = Math.floor(Math.random() * numberColors.length);
+        currentSquare.style.backgroundColor = numberColors[randomColor];
+
+        const numbersOnBoard = squares.map((square) =>
+          parseInt(square.textContent)
+        );
+
+        for (let j = 0; j < expectedResults.length; j++) {
+          const currentNumber = expectedResults[j];
+          const combinations = findCombinations(numbersOnBoard, currentNumber);
+          if (combinations.length > 0) {
+            currentSquare.textContent = getRandomNumber(0, 30);
+            console.log("aleatorio");
+          } else {
+            // assure that the expected results are possible to be found.
+
+            console.log("calculando novos numeros");
+            const randomNumber =
+              numbersOnBoard[getRandomNumber(0, numbersOnBoard.length - 1)];
+
+            console.log(currentNumber);
+            console.log(randomNumber);
+            currentSquare.textContent =
+              randomNumber > currentNumber
+                ? randomNumber - currentNumber
+                : currentNumber - randomNumber;
+          }
+        }
+      };
+
+      if (
+        nextSquare.style.backgroundColor === "" &&
+        currentSquare.style.backgroundColor !== ""
+      ) {
+        nextSquare.style.backgroundColor = currentSquare.style.backgroundColor;
+        nextSquare.textContent = currentSquare.textContent;
+        currentSquare.style.backgroundColor = "";
+        currentSquare.textContent = "";
+
+        if (i < width && currentSquare.style.backgroundColor === "")
+          getNewNumbers();
+      } else if (
+        currentSquare.style.backgroundColor === "" &&
+        nextSquare.style.backgroundColor !== ""
+      ) {
+        getNewNumbers();
+      }
+    }
+  };
+
+  squares.forEach((square) => square.addEventListener("click", handleClick));
+  console.log(usedNumbers);
+
+  console.log(squares.map((square) => square.textContent));
+
+  // Checks carried out indefintely - Add Button to clear interval for best practise, or clear on game over/game won. If you have this indefinite check you can get rid of calling the check functions above.
+  window.setInterval(function () {
+    dropNewNumbers();
+  }, 100);
 });
