@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         // score += 3;
         // scoreDisplay.innerHTML = score;
+        console.log("coluna");
         columnOfThree.forEach((index) => {
           squares[index].style.backgroundColor = "";
         });
@@ -214,35 +215,32 @@ document.addEventListener("DOMContentLoaded", () => {
       squareIdBeingDragged + width,
     ];
 
-    const validMove = validMoves.includes(squareIdBeingReplaced);
-
     const isAColumnOfFour = checkColumnForFour();
     const isARowOfFour = checkRowForFour();
     const isAColumnOfThree = checkColumnForThree();
     const isARowOfThree = checkRowForThree();
+
+    const validMove =
+      validMoves.includes(squareIdBeingReplaced) &&
+      (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree);
 
     console.log(isAColumnOfFour);
     console.log(isARowOfFour);
     console.log(isAColumnOfThree);
     console.log(isARowOfThree);
 
-    if (
-      squareIdBeingReplaced &&
-      validMove &&
-      (isARowOfThree || isARowOfFour || isAColumnOfFour || isAColumnOfThree)
-    ) {
+    if (squareIdBeingReplaced && validMove) {
       squareIdBeingReplaced = null;
       squareIdBeingDragged = null;
-    } else if (
-      (squareIdBeingReplaced && !validMove) ||
-      !(isARowOfThree || isARowOfFour || isAColumnOfFour || isAColumnOfThree)
-    ) {
+    } else if (squareIdBeingReplaced && !validMove) {
       console.log("second");
+      console.log(squareIdBeingReplaced);
       squares[squareIdBeingReplaced].style.backgroundColor = colorBeingReplaced;
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
     } else {
+      console.log("third");
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
     }
