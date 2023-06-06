@@ -219,18 +219,17 @@ document.addEventListener("DOMContentLoaded", () => {
       validMoves.includes(squareIdBeingReplaced) &&
       (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree);
 
-    if (squareIdBeingReplaced && validMove) {
-      squareIdBeingReplaced = null;
-      squareIdBeingDragged = null;
-    } else if (squareIdBeingReplaced && !validMove) {
+    if (squareIdBeingReplaced && !validMove) {
+      console.log("second");
       squares[squareIdBeingReplaced].style.backgroundColor = colorBeingReplaced;
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
-    } else {
-      squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
-      squares[squareIdBeingDragged].textContent = numberBeingDragged;
+      squareIdBeingReplaced = null;
+      squareIdBeingDragged = null;
     }
+    squareIdBeingReplaced = null;
+    squareIdBeingDragged = null;
   }
 
   function dragOver(e) {
@@ -398,7 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
     checkRowForThree();
     checkColumnForThree();
     dropNewNumbers();
-    // checkHadMatch();
     // checkRowForFive();
     // checkColumnForFive();
   }, 100);
