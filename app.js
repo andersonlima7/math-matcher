@@ -172,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         // score += 3;
         // scoreDisplay.innerHTML = score;
-        console.log("coluna");
         columnOfThree.forEach((index) => {
           squares[index].style.backgroundColor = "";
         });
@@ -186,12 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
     colorBeingDragged = this.style.backgroundColor;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
-
-    console.log(squareIdBeingDragged);
   }
 
   function dragDrop() {
-    console.log("drop");
     colorBeingReplaced = this.style.backgroundColor;
     numberBeingReplaced = this.textContent;
     squareIdBeingReplaced = parseInt(this.id);
@@ -207,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function dragEnd() {
     // Adjacent squares
 
-    console.log("end");
     const validMoves = [
       squareIdBeingDragged - 1,
       squareIdBeingDragged - width,
@@ -224,23 +219,15 @@ document.addEventListener("DOMContentLoaded", () => {
       validMoves.includes(squareIdBeingReplaced) &&
       (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree);
 
-    console.log(isAColumnOfFour);
-    console.log(isARowOfFour);
-    console.log(isAColumnOfThree);
-    console.log(isARowOfThree);
-
     if (squareIdBeingReplaced && validMove) {
       squareIdBeingReplaced = null;
       squareIdBeingDragged = null;
     } else if (squareIdBeingReplaced && !validMove) {
-      console.log("second");
-      console.log(squareIdBeingReplaced);
       squares[squareIdBeingReplaced].style.backgroundColor = colorBeingReplaced;
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
     } else {
-      console.log("third");
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
     }
@@ -255,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function dragLeave() {
-    console.log("leave");
     squares[squareIdBeingDragged].style.backgroundColor = "";
   }
 
@@ -275,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
       firstSquareID = parseInt(this.id);
       firstClick = false;
       clickedColor = this.style.backgroundColor;
-      console.log(clickedColor);
       console.log(firstNumber);
       return;
     } else {
@@ -291,46 +276,32 @@ document.addEventListener("DOMContentLoaded", () => {
       const validMove = validMoves.includes(currentSquareId);
       const validColor = currentSquareColor === clickedColor;
 
-      console.log(validColor);
-      console.log(validMove);
-      if (!validMove || !validColor) return;
-      secondNumber = parseInt(this.textContent);
-      secondSquareID = currentSquareId;
+      if (validMove && validColor) {
+        secondNumber = parseInt(this.textContent);
+        secondSquareID = currentSquareId;
+        console.log(secondNumber);
+      }
     }
 
+    if (firstNumber >= 0 && secondNumber >= 0) {
+      // The result is a sum of the tow numbers
+      const result = firstNumber + secondNumber;
+
+      console.log(result);
+      const firstNumberSquare = squares[firstSquareID];
+      const secondNumberSquare = squares[secondSquareID];
+      firstNumberSquare.style.backgroundColor = "";
+      firstNumberSquare.style.color = "";
+      firstNumberSquare.textContent = "";
+      secondNumberSquare.style.backgroundColor = "";
+      secondNumberSquare.style.color = "";
+      secondNumberSquare.textContent = "";
+    }
     firstClick = true;
     firstNumber = -1;
     firstSquareID = "";
     secondNumber = -1;
     secondSquareID = "";
-    clickedColor = "";
-
-    // if (firstNumber >= 0 && secondNumber >= 0) {
-    //   // The result is a sum of the tow numbers
-    //   const result = firstNumber + secondNumber;
-
-    //   console.log(result);
-
-    //   if (expectedResults.includes(result)) {
-    //     const currentNumber1 = document.querySelector(`#${firstSquareID}`);
-    //     const currentNumber2 = document.querySelector(`#${secondSquareID}`);
-
-    //     currentNumber1.style.backgroundColor = "";
-    //     currentNumber1.style.color = "";
-    //     currentNumber1.textContent = "";
-    //     currentNumber2.style.backgroundColor = "";
-    //     currentNumber2.style.color = "";
-    //     currentNumber2.textContent = "";
-    //   } else {
-    //     console.log("errou");
-    //   }
-
-    // firstClick = true;
-    // firstNumber = -1;
-    // firstSquareID = "";
-    // secondNumber = -1;
-    // secondSquareID = "";
-    // }
   }
 
   // const checkRowForFive = () => {
@@ -395,7 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSquare.textContent = "";
         const isFirstRow = i < width;
         if (isFirstRow && currentSquare.style.backgroundColor === "") {
-          console.log("firstRow");
           const randomColor = Math.floor(Math.random() * numberColors.length);
           const randomNumber = getRandomNumber(0, 30);
           currentSquare.style.backgroundColor = numberColors[randomColor];
