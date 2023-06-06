@@ -24,10 +24,6 @@ body {
   user-select: none; /* Standard syntax */
   cursor: pointer;
   border-radius: 50%;
-}
 
-.operations-div {
-  width: 100%;
-  display: flex;
-  gap: 4px;
+  transition: background-color 0.2s ease-out;
 }

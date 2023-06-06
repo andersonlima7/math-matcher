@@ -2,20 +2,17 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
-  const operationsContainer = document.querySelector(".operations-div");
 
   const width = 5;
   const squares = [];
-  const operations = ["=", "+"];
-  const operationsSquares = [];
   const numberColors = [
     "#dc143c",
-    "#F97B22",
+    // "#F97B22",
     "#FFD700",
     "#7AA874",
-    "#E893CF",
+    // "#E893CF",
     "#4682b4",
-    "#9376E0",
+    // "#9376E0",
   ];
 
   // Generate numbers
@@ -73,23 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  const createOperations = () => {
-    for (let i = 0; i < operations.length; i++) {
-      const operation = document.createElement("div");
-      operation.setAttribute("id", `10${i}`);
-      operation.setAttribute("class", "square");
-      operation.setAttribute("draggable", true);
-      operation.textContent = operations[i];
-      operation.style.backgroundColor = "black";
-      operationsContainer.appendChild(operation);
-      operationsSquares.push(operation);
-    }
-  };
-
   createBoard();
-  createOperations();
 
-  // PLayer actions, drag and drop the numbers.
+  // PLayer actions, drag, drop and click on numbers.
 
   let colorBeingDragged;
   let colorBeingReplaced;
@@ -98,14 +81,158 @@ document.addEventListener("DOMContentLoaded", () => {
   let squareIdBeingDragged;
   let squareIdBeingReplaced;
 
+  const checkRowForFour = () => {
+    for (let i = 0; i <= 21; i++) {
+      const rowOfFour = [i, i + 1, i + 2, i + 3];
+      const decidedColor = squares[i].style.backgroundColor;
+      const isBlank = squares[i].style.backgroundColor === "";
+
+      const notValidRowFour = [
+        2, 3, 4, 7, 8, 9, 12, 13, 14, 17, 18, 19, 22, 23, 24,
+      ];
+      if (notValidRowFour.includes(i)) continue;
+
+      if (
+        rowOfFour.every(
+          (index) =>
+            squares[index].style.backgroundColor === decidedColor && !isBlank
+        )
+      ) {
+        // score += 4;
+        // scoreDisplay.innerHTML = score;
+        rowOfFour.forEach((index) => {
+          squares[index].style.backgroundColor = "";
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const checkColumnForFour = () => {
+    for (let i = 0; i <= 9; i++) {
+      const columnOfFour = [i, i + 5, i + 10, i + 15];
+      const decidedColor = squares[i].style.backgroundColor;
+      const isBlank = squares[i].style.backgroundColor === "";
+
+      if (
+        columnOfFour.every(
+          (index) =>
+            squares[index].style.backgroundColor === decidedColor && !isBlank
+        )
+      ) {
+        // score += 4;
+        // scoreDisplay.innerHTML = score;
+        columnOfFour.forEach((index) => {
+          squares[index].style.backgroundColor = "";
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const checkRowForThree = () => {
+    for (let i = 0; i <= 22; i++) {
+      const rowOfThree = [i, i + 1, i + 2];
+      const decidedColor = squares[i].style.backgroundColor;
+      const isBlank = squares[i].style.backgroundColor === "";
+
+      const notValidRowThree = [3, 4, 8, 9, 13, 14, 18, 19, 23, 24];
+      if (notValidRowThree.includes(i)) continue;
+
+      if (
+        rowOfThree.every(
+          (index) =>
+            squares[index].style.backgroundColor === decidedColor && !isBlank
+        )
+      ) {
+        // score += 3;
+        // scoreDisplay.innerHTML = score;
+        rowOfThree.forEach((index) => {
+          squares[index].style.backgroundColor = "";
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const checkColumnForThree = () => {
+    for (let i = 0; i <= 14; i++) {
+      const columnOfThree = [i, i + 5, i + 10];
+      const decidedColor = squares[i].style.backgroundColor;
+      const isBlank = squares[i].style.backgroundColor === "";
+
+      if (
+        columnOfThree.every(
+          (index) =>
+            squares[index].style.backgroundColor === decidedColor && !isBlank
+        )
+      ) {
+        // score += 3;
+        // scoreDisplay.innerHTML = score;
+        columnOfThree.forEach((index) => {
+          squares[index].style.backgroundColor = "";
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
   function dragStart() {
     colorBeingDragged = this.style.backgroundColor;
-    console.log(colorBeingDragged);
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
   }
+
+  function dragDrop() {
+    colorBeingReplaced = this.style.backgroundColor;
+    numberBeingReplaced = this.textContent;
+    squareIdBeingReplaced = parseInt(this.id);
+
+    this.style.backgroundColor = colorBeingDragged;
+    this.textContent = numberBeingDragged;
+
+    const currentSquare = squares[squareIdBeingDragged];
+    currentSquare.style.backgroundColor = colorBeingReplaced;
+    currentSquare.textContent = numberBeingReplaced;
+  }
+
   function dragEnd() {
-    console.log(numberBeingDragged);
+    // Adjacent squares
+    const validMoves = [
+      squareIdBeingDragged - 1,
+      squareIdBeingDragged - width,
+      squareIdBeingDragged + 1,
+      squareIdBeingDragged + width,
+    ];
+
+    const validMove = validMoves.includes(squareIdBeingReplaced);
+
+    const isAColumnOfFour = checkColumnForFour();
+    const isARowOfFour = checkRowForFour();
+    const isAColumnOfThree = checkColumnForThree();
+    const isARowOfThree = checkRowForThree();
+
+    console.log(isAColumnOfFour);
+    console.log(isARowOfFour);
+    console.log(isAColumnOfThree);
+    console.log(isARowOfThree);
+
+    if (
+      squareIdBeingReplaced &&
+      validMove &&
+      (isARowOfThree || isARowOfFour || isAColumnOfFour || isAColumnOfThree)
+    ) {
+      squareIdBeingReplaced = null;
+    } else {
+      squares[squareIdBeingReplaced].style.backgroundColor = colorBeingReplaced;
+      squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
+      squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
+      squares[squareIdBeingDragged].textContent = numberBeingDragged;
+    }
   }
 
   function dragOver(e) {
@@ -117,49 +244,155 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function dragLeave() {
-    this.style.backgroundImage = "";
+    this.style.backgroundColor = "";
   }
 
-  function dragDrop() {
-    colorBeingReplaced = this.style.backgroundColor;
-    numberBeingReplaced = this.textContent;
-    squareIdBeingReplaced = parseInt(this.id);
+  let firstClick = true;
+  let firstNumber = -1;
+  let clickedColor = "";
+  let firstSquareID;
+  let secondNumber = -1;
+  let secondSquareID;
 
-    this.style.backgroundColor = colorBeingDragged;
-    this.textContent = numberBeingDragged;
+  // Matches
 
-    let array;
-    let index = squareIdBeingDragged;
-
-    if (squareIdBeingDragged >= 100) {
-      array = operationsSquares;
-      index -= 100;
+  // Player can click on two adjacent squares to do the sum.
+  function handleClick() {
+    if (firstClick) {
+      firstNumber = parseInt(this.textContent);
+      firstSquareID = parseInt(this.id);
+      firstClick = false;
+      clickedColor = this.style.backgroundColor;
+      console.log(clickedColor);
+      console.log(firstNumber);
+      return;
     } else {
-      array = squares;
+      const currentSquareId = parseInt(this.id);
+      const currentSquareColor = this.style.backgroundColor;
+
+      const validMoves = [
+        firstSquareID - 1,
+        firstSquareID - width,
+        firstSquareID + 1,
+        firstSquareID + width,
+      ];
+      const validMove = validMoves.includes(currentSquareId);
+      const validColor = currentSquareColor === clickedColor;
+
+      console.log(validColor);
+      console.log(validMove);
+      if (!validMove || !validColor) return;
+      secondNumber = parseInt(this.textContent);
+      secondSquareID = currentSquareId;
     }
-    const currentSquare = array[index];
-    currentSquare.style.backgroundColor = colorBeingReplaced;
-    currentSquare.textContent = numberBeingReplaced;
+
+    firstClick = true;
+    firstNumber = -1;
+    firstSquareID = "";
+    secondNumber = -1;
+    secondSquareID = "";
+    clickedColor = "";
+
+    // if (firstNumber >= 0 && secondNumber >= 0) {
+    //   // The result is a sum of the tow numbers
+    //   const result = firstNumber + secondNumber;
+
+    //   console.log(result);
+
+    //   if (expectedResults.includes(result)) {
+    //     const currentNumber1 = document.querySelector(`#${firstSquareID}`);
+    //     const currentNumber2 = document.querySelector(`#${secondSquareID}`);
+
+    //     currentNumber1.style.backgroundColor = "";
+    //     currentNumber1.style.color = "";
+    //     currentNumber1.textContent = "";
+    //     currentNumber2.style.backgroundColor = "";
+    //     currentNumber2.style.color = "";
+    //     currentNumber2.textContent = "";
+    //   } else {
+    //     console.log("errou");
+    //   }
+
+    // firstClick = true;
+    // firstNumber = -1;
+    // firstSquareID = "";
+    // secondNumber = -1;
+    // secondSquareID = "";
+    // }
   }
 
-  function findSumPairs(arr) {
-    const result = [];
+  // const checkRowForFive = () => {
+  //   for (let i = 0; i < 21; i++) {
+  //     const rowOfFive = [i, i + 1, i + 2, i + 3, i + 4];
+  //     const decidedColor = squares[i].style.backgroundColor;
+  //     const isBlank = squares[i].style.backgroundColor === "";
 
-    for (let i = 0; i < arr.length; i++) {
-      const num1 = arr[i];
+  //     const notValidRowFive = [
+  //       0, 1, 2, 3, 4, 5, 10, 11, 15, 20, 21, 22, 23, 24,
+  //     ];
+  //     if (notValidRowFive.includes(i)) continue;
 
-      for (let j = i + 1; j < arr.length; j++) {
-        const num2 = arr[j];
-        const sum = num1 + num2;
+  //     if (
+  //       rowOfFive.every(
+  //         (index) =>
+  //           squares[index].style.backgroundColor === decidedColor && !isBlank
+  //       )
+  //     ) {
+  //       // score += 5;
+  //       // scoreDisplay.innerHTML = score;
+  //       rowOfFive.forEach((index) => {
+  //         squares[index].style.backgroundColor = "";
+  //       });
+  //     }
+  //   }
+  // };
 
-        if (arr.includes(sum)) {
-          result.push([num1, num2]);
+  // const checkColumnForFive = () => {
+  //   for (let i = 0; i < 5; i++) {
+  //     const columnOfFive = [i, i + 5, i + 10, i + 15, i + 20];
+  //     const decidedColor = squares[i].style.backgroundColor;
+  //     const isBlank = squares[i].style.backgroundColor === "";
+
+  //     const notValidColumnFive = [20, 21, 22, 23, 24];
+  //     if (notValidColumnFive.includes(i)) continue;
+
+  //     if (
+  //       columnOfFive.every(
+  //         (index) =>
+  //           squares[index].style.backgroundColor === decidedColor && !isBlank
+  //       )
+  //     ) {
+  //       // score += 5;
+  //       // scoreDisplay.innerHTML = score;
+  //       columnOfFive.forEach((index) => {
+  //         squares[index].style.backgroundColor = "";
+  //       });
+  //     }
+  //   }
+  // };
+
+  // drop new numbers once some have been cleared
+  const dropNewNumbers = () => {
+    for (let i = 0; i <= width * width - width - 1; i++) {
+      const currentSquare = squares[i];
+      const nextSquare = squares[i + width];
+      if (nextSquare.style.backgroundColor === "") {
+        nextSquare.style.backgroundColor = currentSquare.style.backgroundColor;
+        nextSquare.textContent = currentSquare.textContent;
+        currentSquare.style.backgroundColor = "";
+        currentSquare.textContent = "";
+        const firstRow = [0, 1, 2, 3, 4];
+        const isFirstRow = firstRow.includes(i);
+        if (isFirstRow && currentSquare.style.backgroundColor === "") {
+          console.log("firstRow");
+          const randomColor = Math.floor(Math.random() * numberColors.length);
+          const randomNumber = getRandomNumber(0, 30);
+          currentSquare.style.backgroundColor = numberColors[randomColor];
+          currentSquare.textContent = randomNumber;
         }
       }
     }
-
-    return result;
-  }
+  };
 
   squares.forEach((square) => square.addEventListener("dragstart", dragStart));
   squares.forEach((square) => square.addEventListener("dragend", dragEnd));
@@ -167,28 +400,16 @@ document.addEventListener("DOMContentLoaded", () => {
   squares.forEach((square) => square.addEventListener("dragenter", dragEnter));
   squares.forEach((square) => square.addEventListener("dragleave", dragLeave));
   squares.forEach((square) => square.addEventListener("drop", dragDrop));
+  squares.forEach((square) => square.addEventListener("click", handleClick));
 
-  operationsSquares.forEach((square) =>
-    square.addEventListener("dragstart", dragStart)
-  );
-  operationsSquares.forEach((square) =>
-    square.addEventListener("dragend", dragEnd)
-  );
-  operationsSquares.forEach((square) =>
-    square.addEventListener("dragover", dragOver)
-  );
-  operationsSquares.forEach((square) =>
-    square.addEventListener("dragenter", dragEnter)
-  );
-  operationsSquares.forEach((square) =>
-    square.addEventListener("dragleave", dragLeave)
-  );
-  operationsSquares.forEach((square) =>
-    square.addEventListener("drop", dragDrop)
-  );
-  // console.log(usedNumbers);
-
-  const numSquares = squares.map((square) => parseInt(square.textContent));
-
-  console.log(findSumPairs(numSquares));
+  window.setInterval(() => {
+    checkRowForFour();
+    checkColumnForFour();
+    checkRowForThree();
+    checkColumnForThree();
+    // dropNewNumbers();
+    // checkHadMatch();
+    // checkRowForFive();
+    // checkColumnForFive();
+  }, 100);
 });
