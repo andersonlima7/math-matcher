@@ -225,8 +225,9 @@ document.addEventListener("DOMContentLoaded", () => {
       squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
       squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
       squares[squareIdBeingDragged].textContent = numberBeingDragged;
-      squareIdBeingReplaced = null;
-      squareIdBeingDragged = null;
+    } else {
+      squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
+      squares[squareIdBeingDragged].textContent = numberBeingDragged;
     }
     squareIdBeingReplaced = null;
     squareIdBeingDragged = null;
