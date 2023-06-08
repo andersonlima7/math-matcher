@@ -3,6 +3,14 @@ body {
   padding: 0;
 }
 
+.game {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 7rem;
+  margin-top: 1.875rem;
+}
 .grid {
   height: 350px;
   width: 350px;
@@ -12,12 +20,13 @@ body {
 
 .square {
   color: white;
-  font-size: 35px;
+  font-size: 2.1875rem;
   height: 70px;
   width: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: Bangers;
 
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
@@ -26,4 +35,12 @@ body {
   border-radius: 50%;
 
   transition: background-color 0.2s ease-out;
+}
+
+.header {
+  display: flex;
+  width: 400px;
+  height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(to left, #5170ff, #ff66c4);
 }
