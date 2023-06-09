@@ -37,15 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return matrix;
   };
 
-  // Returns if an array has the passed array in it.
-  const isArrayInArray = (array, item) => {
-    const itemString = JSON.stringify(item);
-    const contains = array.some((arr) => {
-      return JSON.stringify(arr) === itemString;
-    });
-    return contains;
-  };
-
   // Generating the matrix and results list
   const matrix = generateMatrix();
 
@@ -78,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let numberBeingReplaced;
   let squareIdBeingDragged;
   let squareIdBeingReplaced;
-  let animationMoveBack;
+  let isMoving = false;
 
   const checkRowForFour = () => {
     const numbers = [];
@@ -197,6 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function waitForAnimationEnd(element) {
+    console.log(element.classList.length);
+    if (element.classList.length < 2) return;
     return new Promise((resolve) => {
       element.addEventListener("animationend", () => {
         resolve();
@@ -204,22 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function waitForAnimationEndIfStarted(element) {
-    return new Promise((resolve) => {
-      const onAnimationEnd = () => {
-        resolve();
-        element.removeEventListener("animationend", onAnimationEnd);
-      };
-
-      if (element.animationName !== "none") {
-        element.addEventListener("animationend", onAnimationEnd);
-      } else {
-        resolve();
-      }
-    });
-  }
-
-  function dragStart(e) {
+  function dragStart() {
     colorBeingDragged = this.style.backgroundImage;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
@@ -247,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     if (validMoves.includes(squareIdBeingReplaced)) {
+      isMoving = true;
       if (squareIdBeingReplaced === squareIdBeingDragged + 1) {
         draggedSquare.classList.add("dragging-right");
         replacedSquare.classList.add("dragging-left");
@@ -260,16 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
         draggedSquare.classList.add("dragging-up");
         replacedSquare.classList.add("dragging-down");
       }
-
       await waitForAnimationEnd(draggedSquare);
     } else return;
 
     // Ação a ser executada após o término da animação
-    console.log("Animação concluída drag drop");
-
-    console.log(squareIdBeingDragged);
-    console.log(squareIdBeingReplaced);
-
     this.style.backgroundImage = colorBeingDragged;
     this.textContent = numberBeingDragged;
 
@@ -278,9 +251,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function removeLastClass(element) {
+    if (!element) return;
     const classList = element.classList;
 
-    if (classList.length > 0) {
+    if (classList.length > 0 && classList.length >= 2) {
       const lastClass = classList[classList.length - 1];
       element.classList.remove(lastClass);
     }
@@ -293,11 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function dragEnd() {
     // Adjacent squares
 
-    await waitForAnimationEndIfStarted(squares[squareIdBeingDragged]);
-
-    // await sleep(2000);
-
-    console.log("Animação concluída drag end");
+    await waitForAnimationEnd(squares[squareIdBeingDragged]);
 
     const validMoves = [
       squareIdBeingDragged - 1,
@@ -325,6 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const isSquareIdBeingReplaced =
       squareIdBeingReplaced >= 0 && squareIdBeingReplaced !== null;
 
+    const draggedSquare = squares[squareIdBeingDragged];
+    const replacedSquare = squares[squareIdBeingReplaced];
     // Valid move
     if (isSquareIdBeingReplaced && validMove) {
       // Create account
@@ -357,18 +329,15 @@ document.addEventListener("DOMContentLoaded", () => {
           accounts.appendChild(account);
         }
       }
+      removeLastClass(draggedSquare);
+      removeLastClass(replacedSquare);
     } else if (isSquareIdBeingReplaced && !validMove) {
       // Trying move square to a position that is not allowed.
 
-      const draggedSquare = squares[squareIdBeingDragged];
-      const replacedSquare = squares[squareIdBeingReplaced];
       removeLastClass(draggedSquare);
       removeLastClass(replacedSquare);
 
-      console.log(draggedSquare);
-      console.log(replacedSquare);
-
-      await sleep(100);
+      await sleep(0);
       if (squareIdBeingReplaced === squareIdBeingDragged + 1) {
         draggedSquare.classList.add("dragging-right");
         replacedSquare.classList.add("dragging-left");
@@ -378,12 +347,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (squareIdBeingReplaced === squareIdBeingDragged + width) {
         draggedSquare.classList.add("dragging-down");
         replacedSquare.classList.add("dragging-up");
-      } else {
+      } else if (squareIdBeingReplaced === squareIdBeingDragged - width) {
         draggedSquare.classList.add("dragging-up");
         replacedSquare.classList.add("dragging-down");
       }
 
-      await waitForAnimationEndIfStarted(draggedSquare);
+      await waitForAnimationEnd(draggedSquare);
 
       console.log("animation finished");
 
@@ -391,18 +360,17 @@ document.addEventListener("DOMContentLoaded", () => {
       draggedSquare.style.backgroundImage = colorBeingDragged;
       replacedSquare.textContent = numberBeingReplaced;
       draggedSquare.textContent = numberBeingDragged;
+      removeLastClass(draggedSquare);
+      removeLastClass(replacedSquare);
     } else {
       // Moving square outside board
-      const draggedSquare = squares[squareIdBeingDragged];
-      const replacedSquare = squares[squareIdBeingReplaced];
       draggedSquare.style.backgroundImage = colorBeingDragged;
       draggedSquare.textContent = numberBeingDragged;
     }
 
-    removeLastClass(squares[squareIdBeingDragged]);
-    removeLastClass(squares[squareIdBeingReplaced]);
     squareIdBeingReplaced = null;
     squareIdBeingDragged = null;
+    isMoving = false;
   }
 
   function dragOver(e) {
@@ -531,6 +499,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // drop new numbers once some have been cleared
   const dropNewNumbers = () => {
+    // Check if a moving is happening and block the grid accordingly.
+    if (isMoving) grid.classList.add("blocked");
+    else grid.classList.remove("blocked");
     for (let i = 0; i <= width * width - width - 1; i++) {
       const currentSquare = squares[i];
       const nextSquare = squares[i + width];
