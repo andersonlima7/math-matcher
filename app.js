@@ -3,8 +3,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
   const accounts = document.querySelector(".accounts");
+  const header = document.querySelector(".header");
 
   const width = 5;
+  const goal = 200; // The minimum number of points to win the game.
+  let rounds = 5; // The maximum number of rounds move the numbers.
+  let score = 0;
+  let maxScorePossible = 0;
+  let moved = false;
+  const roundsElement = document.createElement("span");
+  roundsElement.setAttribute("class", "rounds");
+
+  const scoreElement = document.createElement("span");
+  scoreElement.setAttribute("class", "score");
+
   const squares = [];
   const numberColors = [
     "linear-gradient(90deg, rgba(188,124,255,1) 23%, rgba(135,32,241,1) 83%)",
@@ -12,6 +24,23 @@ document.addEventListener("DOMContentLoaded", () => {
     "linear-gradient(90deg, rgba(122,221,144,1) 23%, rgba(18,121,9,1) 83%)",
     "linear-gradient(90deg, rgba(124,174,241,1) 23%, rgba(0,74,173,1) 83%)",
   ];
+
+  const updateRounds = () => {
+    rounds -= 1;
+    roundsElement.textContent = rounds;
+    console.log(rounds, "rounds");
+    if (rounds === 0) {
+      grid.classList.add("hidden");
+      accounts.classList.remove("hidden");
+    }
+  };
+  const updateScore = (value) => {
+    if (moved) {
+      score += value;
+      scoreElement.textContent = score;
+      console.log(score, "score");
+    }
+  };
 
   // Generate numbers
   // Function to generate a random number between min and max (inclusive)
@@ -37,8 +66,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return matrix;
   };
 
-  // Generating the matrix and results list
+  // Generating the matrix
   const matrix = generateMatrix();
+
+  //  Create board
+  const createHeader = () => {
+    const goalElement = document.createElement("span");
+    goalElement.setAttribute("class", "goal");
+
+    goalElement.textContent = goal;
+    roundsElement.textContent = rounds;
+    scoreElement.textContent = score;
+
+    header.appendChild(scoreElement);
+    header.appendChild(goalElement);
+    header.appendChild(roundsElement);
+  };
 
   //  Create board
   const createBoard = () => {
@@ -59,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  createHeader();
   createBoard();
 
   // PLayer actions, drag, drop and click on numbers.
@@ -89,8 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
             squares[index].style.backgroundImage === decidedColor && !isBlank
         )
       ) {
-        // score += 4;
-        // scoreDisplay.innerHTML = score;
+        updateScore(4);
         rowOfFour.forEach((index) => {
           const currentSquare = squares[index];
           numbers.push(parseInt(currentSquare.textContent));
@@ -116,8 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
             squares[index].style.backgroundImage === decidedColor && !isBlank
         )
       ) {
-        // score += 4;
-        // scoreDisplay.innerHTML = score;
+        updateScore(4);
         columnOfFour.forEach((index) => {
           const currentSquare = squares[index];
           numbers.push(parseInt(currentSquare.textContent));
@@ -146,8 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
             squares[index].style.backgroundImage === decidedColor && !isBlank
         )
       ) {
-        // score += 3;
-        // scoreDisplay.innerHTML = score;
+        updateScore(3);
         rowOfThree.forEach((index) => {
           const currentSquare = squares[index];
           numbers.push(parseInt(currentSquare.textContent));
@@ -173,8 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
             squares[index].style.backgroundImage === decidedColor && !isBlank
         )
       ) {
-        // score += 3;
-        // scoreDisplay.innerHTML = score;
+        updateScore(3);
         columnOfThree.forEach((index) => {
           const currentSquare = squares[index];
           numbers.push(parseInt(currentSquare.textContent));
@@ -242,7 +282,6 @@ document.addEventListener("DOMContentLoaded", () => {
       await waitForAnimationEnd(draggedSquare);
     } else return;
 
-    // Ação a ser executada após o término da animação
     this.style.backgroundImage = colorBeingDragged;
     this.textContent = numberBeingDragged;
 
@@ -264,9 +303,36 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  function createAccountElement(matchNumbers) {
+    const account = document.createElement("div");
+    account.setAttribute("class", "account");
+
+    for (let i = 0; i < matchNumbers.length; i++) {
+      const number = matchNumbers[i];
+      const operand = document.createElement("span");
+      operand.textContent = number;
+      operand.setAttribute("class", "account-operand");
+      account.appendChild(operand);
+
+      const operator = document.createElement("span");
+      if (i !== matchNumbers.length - 1) {
+        operator.textContent = "+";
+      } else operator.textContent = "=";
+      account.appendChild(operator);
+    }
+
+    const result = document.createElement("input");
+    result.setAttribute("class", "account-result");
+    result.setAttribute("type", "number");
+    result.setAttribute("placeholder", "___");
+    account.appendChild(result);
+
+    return account;
+  }
+
   async function dragEnd() {
     // Adjacent squares
-
+    moved = true;
     await waitForAnimationEnd(squares[squareIdBeingDragged]);
 
     const validMoves = [
@@ -300,7 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Valid move
     if (isSquareIdBeingReplaced && validMove) {
       // Create account
-
       const matchTypes = [
         { isMatch: isAColumnOfFour, matchNumbers: fourColumnMatch },
         { isMatch: isARowOfFour, matchNumbers: fourRowMatch },
@@ -310,30 +375,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       for (let matchType of matchTypes) {
         if (matchType.isMatch) {
-          const account = document.createElement("div");
-          account.setAttribute("class", "account");
-          const numbers = matchType.matchNumbers;
-          for (let i = 0; i < numbers.length; i++) {
-            const number = numbers[i];
-            const operand = document.createElement("span");
-            operand.textContent = number;
-            operand.setAttribute("class", "account-operand");
-            account.appendChild(operand);
-
-            if (i !== numbers.length - 1) {
-              const operator = document.createElement("span");
-              operator.textContent = "+";
-              account.appendChild(operator);
-            }
-          }
+          const account = createAccountElement(matchType.matchNumbers);
           accounts.appendChild(account);
         }
       }
       removeLastClass(draggedSquare);
       removeLastClass(replacedSquare);
+
+      updateRounds();
     } else if (isSquareIdBeingReplaced && !validMove) {
       // Trying move square to a position that is not allowed.
-
       removeLastClass(draggedSquare);
       removeLastClass(replacedSquare);
 
@@ -353,8 +404,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       await waitForAnimationEnd(draggedSquare);
-
-      console.log("animation finished");
 
       replacedSquare.style.backgroundImage = colorBeingReplaced;
       draggedSquare.style.backgroundImage = colorBeingDragged;
@@ -427,18 +476,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (firstNumber >= 0 && secondNumber >= 0) {
-      // The result is a sum of the tow numbers
-      const result = firstNumber + secondNumber;
-
-      console.log(result);
+      // The result is a sum of the two numbers
       const firstNumberSquare = squares[firstSquareID];
       const secondNumberSquare = squares[secondSquareID];
+
+      // Clear the first number square
       firstNumberSquare.style.backgroundImage = "";
       firstNumberSquare.style.color = "";
       firstNumberSquare.textContent = "";
+
+      // Clear the second number square
       secondNumberSquare.style.backgroundImage = "";
       secondNumberSquare.style.color = "";
       secondNumberSquare.textContent = "";
+
+      // Create account
+      const account = document.createElement("div");
+      account.setAttribute("class", "account");
+
+      // Create operand 1
+      const operand1 = document.createElement("span");
+      operand1.textContent = firstNumber;
+      operand1.setAttribute("class", "account-operand");
+      account.appendChild(operand1);
+
+      // Create sum operator
+      const sumOperator = document.createElement("span");
+      sumOperator.textContent = "+";
+      account.appendChild(sumOperator);
+
+      // Create operand 2
+      const operand2 = document.createElement("span");
+      operand2.textContent = secondNumber;
+      operand2.setAttribute("class", "account-operand");
+      account.appendChild(operand2);
+
+      // Create equal operator
+      const equalOperator = document.createElement("span");
+      equalOperator.textContent = "=";
+      account.appendChild(equalOperator);
+
+      // Create result input
+      const result = document.createElement("input");
+      result.setAttribute("class", "account-result");
+      result.setAttribute("type", "number");
+      result.setAttribute("placeholder", "___");
+      account.appendChild(result);
+
+      // Append account to accounts container
+      accounts.appendChild(account);
+      updateRounds();
+      updateScore(2);
     }
     firstClick = true;
     firstNumber = -1;
@@ -447,61 +535,38 @@ document.addEventListener("DOMContentLoaded", () => {
     secondSquareID = "";
   }
 
-  // const checkRowForFive = () => {
-  //   for (let i = 0; i < 21; i++) {
-  //     const rowOfFive = [i, i + 1, i + 2, i + 3, i + 4];
-  //     const decidedColor = squares[i].style.backgroundImage;
-  //     const isBlank = squares[i].style.backgroundImage === "";
+  // Check if the account is correct.
+  const verifyResult = (accountElement) => {
+    const operandElements =
+      accountElement.getElementsByClassName("account-operand");
+    const resultElement =
+      accountElement.getElementsByClassName("account-result")[0];
 
-  //     const notValidRowFive = [
-  //       0, 1, 2, 3, 4, 5, 10, 11, 15, 20, 21, 22, 23, 24,
-  //     ];
-  //     if (notValidRowFive.includes(i)) continue;
+    let sum = 0;
+    for (let i = 0; i < operandElements.length; i++) {
+      const operandValue = parseInt(operandElements[i].textContent);
+      if (isNaN(operandValue)) {
+        return false; // Se algum operando não for um número válido, retorna falso
+      }
+      sum += operandValue;
+    }
 
-  //     if (
-  //       rowOfFive.every(
-  //         (index) =>
-  //           squares[index].style.backgroundImage === decidedColor && !isBlank
-  //       )
-  //     ) {
-  //       // score += 5;
-  //       // scoreDisplay.innerHTML = score;
-  //       rowOfFive.forEach((index) => {
-  //         squares[index].style.backgroundImage = "";
-  //       });
-  //     }
-  //   }
-  // };
+    const expectedResult = parseInt(resultElement.value);
+    if (isNaN(expectedResult)) {
+      return false; // Se o resultado esperado não for um número válido, retorna falso
+    }
 
-  // const checkColumnForFive = () => {
-  //   for (let i = 0; i < 5; i++) {
-  //     const columnOfFive = [i, i + 5, i + 10, i + 15, i + 20];
-  //     const decidedColor = squares[i].style.backgroundImage;
-  //     const isBlank = squares[i].style.backgroundImage === "";
+    return sum === expectedResult;
+  };
 
-  //     const notValidColumnFive = [20, 21, 22, 23, 24];
-  //     if (notValidColumnFive.includes(i)) continue;
-
-  //     if (
-  //       columnOfFive.every(
-  //         (index) =>
-  //           squares[index].style.backgroundImage === decidedColor && !isBlank
-  //       )
-  //     ) {
-  //       // score += 5;
-  //       // scoreDisplay.innerHTML = score;
-  //       columnOfFive.forEach((index) => {
-  //         squares[index].style.backgroundImage = "";
-  //       });
-  //     }
-  //   }
-  // };
-
-  // drop new numbers once some have been cleared
-  const dropNewNumbers = () => {
+  const blockGrid = () => {
     // Check if a moving is happening and block the grid accordingly.
     if (isMoving) grid.classList.add("blocked");
     else grid.classList.remove("blocked");
+  };
+
+  // Drop new numbers once some have been cleared
+  const dropNewNumbers = () => {
     for (let i = 0; i <= width * width - width - 1; i++) {
       const currentSquare = squares[i];
       const nextSquare = squares[i + width];
@@ -539,12 +604,13 @@ document.addEventListener("DOMContentLoaded", () => {
   squares.forEach((square) => square.addEventListener("click", handleClick));
 
   window.setInterval(() => {
-    checkRowForFour();
-    checkColumnForFour();
-    checkRowForThree();
-    checkColumnForThree();
-    dropNewNumbers();
-    // checkRowForFive();
-    // checkColumnForFive();
+    if (rounds > 0) {
+      checkRowForFour();
+      checkColumnForFour();
+      checkRowForThree();
+      checkColumnForThree();
+      dropNewNumbers();
+      blockGrid();
+    }
   }, 100);
 });

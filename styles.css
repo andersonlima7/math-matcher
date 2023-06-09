@@ -5,6 +5,7 @@ body {
 
 .game {
   width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -18,8 +19,7 @@ body {
     rgba(205, 255, 216, 1) 23%,
     rgba(148, 185, 255, 1) 83%
   );
-  height: 100vh;
-  pointer-events: none;
+  font-family: Bangers;
 }
 .grid {
   display: grid;
@@ -45,7 +45,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: Bangers;
 
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
@@ -84,34 +83,58 @@ body {
 
 .header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1.875rem;
   width: 100%;
   max-width: 25rem;
   height: 80px;
   border-radius: 20px;
-  background: linear-gradient(to left, #5170ff, #ff66c4);
+  background: linear-gradient(to left, #5170ff, #627df8);
+}
+
+.header > span {
+  color: white;
+  font-size: 2.5rem;
+  margin: 0px 20px;
+}
+
+.header .goal {
+  color: #85ff66d8;
+}
+
+.header .score {
+  color: #f8ac08;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   gap: 30px;
+  padding-bottom: 40px;
 }
 .accounts {
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: 15px;
+  padding: 25px;
   border-radius: 8px;
   font-family: Bangers;
   font-size: 2rem;
   background-color: rgba(0, 0, 0, 0.2);
   color: white;
+  gap: 15px;
 }
+
 .account {
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: start;
+  background-color: #5170ff;
+  gap: 8px;
   border-radius: 8px;
   padding: 10px;
+  max-width: 250px;
+  width: 100%;
 }
 
 .account-result {
@@ -120,13 +143,44 @@ body {
   font-family: Bangers;
   font-size: 2rem;
   max-width: 60px;
+  color: #85ff66a1;
+}
 
-  color: #7b00ff;
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #85ff66a1;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #85ff66a1;
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: #85ff66a1;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .account-result:focus {
   border: none;
   outline: none;
+}
+
+.hidden {
+  display: none;
 }
 
 @keyframes moveUp {
