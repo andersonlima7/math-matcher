@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
+  const accounts = document.querySelector(".accounts");
 
   const width = 5;
   const squares = [];
@@ -77,8 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let numberBeingReplaced;
   let squareIdBeingDragged;
   let squareIdBeingReplaced;
+  let animationMoveBack;
 
   const checkRowForFour = () => {
+    const numbers = [];
     for (let i = 0; i <= 21; i++) {
       const rowOfFour = [i, i + 1, i + 2, i + 3];
       const decidedColor = squares[i].style.backgroundImage;
@@ -98,15 +101,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // score += 4;
         // scoreDisplay.innerHTML = score;
         rowOfFour.forEach((index) => {
-          squares[index].style.backgroundImage = "";
+          const currentSquare = squares[index];
+          numbers.push(parseInt(currentSquare.textContent));
+          currentSquare.style.backgroundImage = "";
+          currentSquare.textContent = "";
         });
-        return true;
+        return numbers;
       }
     }
-    return false;
+    return numbers;
   };
 
   const checkColumnForFour = () => {
+    const numbers = [];
     for (let i = 0; i <= 9; i++) {
       const columnOfFour = [i, i + 5, i + 10, i + 15];
       const decidedColor = squares[i].style.backgroundImage;
@@ -121,15 +128,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // score += 4;
         // scoreDisplay.innerHTML = score;
         columnOfFour.forEach((index) => {
-          squares[index].style.backgroundImage = "";
+          const currentSquare = squares[index];
+          numbers.push(parseInt(currentSquare.textContent));
+          currentSquare.style.backgroundImage = "";
+          currentSquare.textContent = "";
         });
-        return true;
+        return numbers;
       }
     }
-    return false;
+    return numbers;
   };
 
   const checkRowForThree = () => {
+    const numbers = [];
     for (let i = 0; i <= 22; i++) {
       const rowOfThree = [i, i + 1, i + 2];
       const decidedColor = squares[i].style.backgroundImage;
@@ -147,15 +158,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // score += 3;
         // scoreDisplay.innerHTML = score;
         rowOfThree.forEach((index) => {
-          squares[index].style.backgroundImage = "";
+          const currentSquare = squares[index];
+          numbers.push(parseInt(currentSquare.textContent));
+          currentSquare.style.backgroundImage = "";
+          currentSquare.textContent = "";
         });
-        return true;
+        return numbers;
       }
     }
-    return false;
+    return numbers;
   };
 
   const checkColumnForThree = () => {
+    const numbers = [];
     for (let i = 0; i <= 14; i++) {
       const columnOfThree = [i, i + 5, i + 10];
       const decidedColor = squares[i].style.backgroundImage;
@@ -170,35 +185,59 @@ document.addEventListener("DOMContentLoaded", () => {
         // score += 3;
         // scoreDisplay.innerHTML = score;
         columnOfThree.forEach((index) => {
-          squares[index].style.backgroundImage = "";
+          const currentSquare = squares[index];
+          numbers.push(parseInt(currentSquare.textContent));
+          currentSquare.style.backgroundImage = "";
+          currentSquare.textContent = "";
         });
-        return true;
+        return numbers;
       }
     }
-    return false;
+    return numbers;
   };
 
-  function dragStart() {
+  function waitForAnimationEnd(element) {
+    return new Promise((resolve) => {
+      element.addEventListener("animationend", () => {
+        resolve();
+      });
+    });
+  }
+
+  function waitForAnimationEndIfStarted(element) {
+    return new Promise((resolve) => {
+      const onAnimationEnd = () => {
+        resolve();
+        element.removeEventListener("animationend", onAnimationEnd);
+      };
+
+      if (element.animationName !== "none") {
+        element.addEventListener("animationend", onAnimationEnd);
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  function dragStart(e) {
     colorBeingDragged = this.style.backgroundImage;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
+
+    // const canvas = document.createElement("canvas");
+    // e.dataTransfer.setDragImage(canvas, 0, 0);
+    // canvas.remove();
   }
 
-  function dragDrop() {
+  async function dragDrop() {
     colorBeingReplaced = this.style.backgroundImage;
     numberBeingReplaced = this.textContent;
     squareIdBeingReplaced = parseInt(this.id);
+    console.log(squareIdBeingReplaced);
+    console.log(squareIdBeingDragged);
 
-    this.style.backgroundImage = colorBeingDragged;
-    this.textContent = numberBeingDragged;
-
-    const currentSquare = squares[squareIdBeingDragged];
-    currentSquare.style.backgroundImage = colorBeingReplaced;
-    currentSquare.textContent = numberBeingReplaced;
-  }
-
-  function dragEnd() {
-    // Adjacent squares
+    const draggedSquare = squares[squareIdBeingDragged];
+    const replacedSquare = squares[squareIdBeingReplaced];
 
     const validMoves = [
       squareIdBeingDragged - 1,
@@ -207,30 +246,161 @@ document.addEventListener("DOMContentLoaded", () => {
       squareIdBeingDragged + width,
     ];
 
-    const isAColumnOfFour = checkColumnForFour();
-    const isARowOfFour = checkRowForFour();
-    const isAColumnOfThree = checkColumnForThree();
-    const isARowOfThree = checkRowForThree();
+    if (validMoves.includes(squareIdBeingReplaced)) {
+      if (squareIdBeingReplaced === squareIdBeingDragged + 1) {
+        draggedSquare.classList.add("dragging-right");
+        replacedSquare.classList.add("dragging-left");
+      } else if (squareIdBeingReplaced === squareIdBeingDragged - 1) {
+        draggedSquare.classList.add("dragging-left");
+        replacedSquare.classList.add("dragging-right");
+      } else if (squareIdBeingReplaced === squareIdBeingDragged + width) {
+        draggedSquare.classList.add("dragging-down");
+        replacedSquare.classList.add("dragging-up");
+      } else {
+        draggedSquare.classList.add("dragging-up");
+        replacedSquare.classList.add("dragging-down");
+      }
+
+      await waitForAnimationEnd(draggedSquare);
+    } else return;
+
+    // Ação a ser executada após o término da animação
+    console.log("Animação concluída drag drop");
+
+    console.log(squareIdBeingDragged);
+    console.log(squareIdBeingReplaced);
+
+    this.style.backgroundImage = colorBeingDragged;
+    this.textContent = numberBeingDragged;
+
+    draggedSquare.style.backgroundImage = colorBeingReplaced;
+    draggedSquare.textContent = numberBeingReplaced;
+  }
+
+  function removeLastClass(element) {
+    const classList = element.classList;
+
+    if (classList.length > 0) {
+      const lastClass = classList[classList.length - 1];
+      element.classList.remove(lastClass);
+    }
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function dragEnd() {
+    // Adjacent squares
+
+    await waitForAnimationEndIfStarted(squares[squareIdBeingDragged]);
+
+    // await sleep(2000);
+
+    console.log("Animação concluída drag end");
+
+    const validMoves = [
+      squareIdBeingDragged - 1,
+      squareIdBeingDragged - width,
+      squareIdBeingDragged + 1,
+      squareIdBeingDragged + width,
+    ];
+
+    const fourColumnMatch = checkColumnForFour();
+    const fourRowMatch = checkRowForFour();
+    const treeColumnMatch = checkColumnForThree();
+    const treeRowMatch = checkRowForThree();
+
+    const isAColumnOfFour = fourColumnMatch.length > 0;
+    const isARowOfFour = fourRowMatch.length > 0;
+    const isAColumnOfThree = treeColumnMatch.length > 0;
+    const isARowOfThree = treeRowMatch.length > 0;
+
+    console.log(fourColumnMatch, fourRowMatch, treeColumnMatch, treeRowMatch);
 
     const validMove =
       validMoves.includes(squareIdBeingReplaced) &&
       (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree);
 
-    if (squareIdBeingReplaced && validMove) {
-      squareIdBeingReplaced = null;
-      squareIdBeingDragged = null;
-    } else if (squareIdBeingReplaced && !validMove) {
-      console.log("second");
-      console.log(squareIdBeingReplaced);
-      squares[squareIdBeingReplaced].style.backgroundImage = colorBeingReplaced;
-      squares[squareIdBeingDragged].style.backgroundImage = colorBeingDragged;
-      squares[squareIdBeingReplaced].textContent = numberBeingReplaced;
-      squares[squareIdBeingDragged].textContent = numberBeingDragged;
+    const isSquareIdBeingReplaced =
+      squareIdBeingReplaced >= 0 && squareIdBeingReplaced !== null;
+
+    // Valid move
+    if (isSquareIdBeingReplaced && validMove) {
+      // Create account
+
+      const matchTypes = [
+        { isMatch: isAColumnOfFour, matchNumbers: fourColumnMatch },
+        { isMatch: isARowOfFour, matchNumbers: fourRowMatch },
+        { isMatch: isAColumnOfThree, matchNumbers: treeColumnMatch },
+        { isMatch: isARowOfThree, matchNumbers: treeRowMatch },
+      ];
+
+      for (let matchType of matchTypes) {
+        if (matchType.isMatch) {
+          const account = document.createElement("div");
+          account.setAttribute("class", "account");
+          const numbers = matchType.matchNumbers;
+          for (let i = 0; i < numbers.length; i++) {
+            const number = numbers[i];
+            const operand = document.createElement("span");
+            operand.textContent = number;
+            operand.setAttribute("class", "account-operand");
+            account.appendChild(operand);
+
+            if (i !== numbers.length - 1) {
+              const operator = document.createElement("span");
+              operator.textContent = "+";
+              account.appendChild(operator);
+            }
+          }
+          accounts.appendChild(account);
+        }
+      }
+    } else if (isSquareIdBeingReplaced && !validMove) {
+      // Trying move square to a position that is not allowed.
+
+      const draggedSquare = squares[squareIdBeingDragged];
+      const replacedSquare = squares[squareIdBeingReplaced];
+      removeLastClass(draggedSquare);
+      removeLastClass(replacedSquare);
+
+      console.log(draggedSquare);
+      console.log(replacedSquare);
+
+      await sleep(100);
+      if (squareIdBeingReplaced === squareIdBeingDragged + 1) {
+        draggedSquare.classList.add("dragging-right");
+        replacedSquare.classList.add("dragging-left");
+      } else if (squareIdBeingReplaced === squareIdBeingDragged - 1) {
+        draggedSquare.classList.add("dragging-left");
+        replacedSquare.classList.add("dragging-right");
+      } else if (squareIdBeingReplaced === squareIdBeingDragged + width) {
+        draggedSquare.classList.add("dragging-down");
+        replacedSquare.classList.add("dragging-up");
+      } else {
+        draggedSquare.classList.add("dragging-up");
+        replacedSquare.classList.add("dragging-down");
+      }
+
+      await waitForAnimationEndIfStarted(draggedSquare);
+
+      console.log("animation finished");
+
+      replacedSquare.style.backgroundImage = colorBeingReplaced;
+      draggedSquare.style.backgroundImage = colorBeingDragged;
+      replacedSquare.textContent = numberBeingReplaced;
+      draggedSquare.textContent = numberBeingDragged;
     } else {
-      console.log("third");
-      squares[squareIdBeingDragged].style.backgroundImage = colorBeingDragged;
-      squares[squareIdBeingDragged].textContent = numberBeingDragged;
+      // Moving square outside board
+      const draggedSquare = squares[squareIdBeingDragged];
+      const replacedSquare = squares[squareIdBeingReplaced];
+      draggedSquare.style.backgroundImage = colorBeingDragged;
+      draggedSquare.textContent = numberBeingDragged;
     }
+
+    removeLastClass(squares[squareIdBeingDragged]);
+    removeLastClass(squares[squareIdBeingReplaced]);
     squareIdBeingReplaced = null;
     squareIdBeingDragged = null;
   }
@@ -243,8 +413,11 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
   }
 
-  function dragLeave() {
-    squares[squareIdBeingDragged].style.backgroundImage = "";
+  function dragLeave(e) {
+    // const square = squares[squareIdBeingDragged];
+    // square.style.backgroundImage = "none";
+    // square.textContent = "";
+    e.preventDefault();
   }
 
   let firstClick = true;

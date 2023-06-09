@@ -4,18 +4,31 @@ body {
 }
 
 .game {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
-  gap: 7rem;
-  margin-top: 1.875rem;
+  gap: 5rem;
+  /* background-image: url("./assets/background.jpg"); */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: linear-gradient(
+    90deg,
+    rgba(205, 255, 216, 1) 23%,
+    rgba(148, 185, 255, 1) 83%
+  );
+  height: 100vh;
 }
 .grid {
-  height: 350px;
-  width: 350px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  border: 1px solid transparent;
+  grid-gap: 1px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px;
 }
 
 .square {
@@ -34,13 +47,114 @@ body {
   cursor: pointer;
   border-radius: 50%;
 
-  transition: background-color 0.2s ease-out;
+  -webkit-transition: background-image 1s ease-in-out;
+  transition: background-image 1s ease-in-out;
+}
+
+.square:hover {
+  filter: brightness(120%); /* Ajuste o valor para alterar o brilho */
+}
+
+.dragging-up,
+.dragging-down,
+.dragging-right,
+.dragging-left {
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-delay: 0s;
+}
+.dragging-up {
+  animation-name: moveUp;
+}
+.dragging-down {
+  animation-name: moveDown;
+}
+.dragging-right {
+  animation-name: moveRight;
+}
+.dragging-left {
+  animation-name: moveLeft;
 }
 
 .header {
   display: flex;
-  width: 400px;
+  margin-top: 1.875rem;
+  width: 100%;
+  max-width: 25rem;
   height: 80px;
   border-radius: 20px;
   background: linear-gradient(to left, #5170ff, #ff66c4);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.accounts {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 15px;
+  border-radius: 8px;
+  font-family: Bangers;
+  font-size: 2rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+}
+.account {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.account-result {
+  background: transparent;
+  border: none;
+  font-family: Bangers;
+  font-size: 2rem;
+  max-width: 60px;
+
+  color: #7b00ff;
+}
+
+.account-result:focus {
+  border: none;
+  outline: none;
+}
+
+@keyframes moveUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-70px);
+  }
+}
+
+@keyframes moveDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(70px);
+  }
+}
+
+@keyframes moveRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(70px);
+  }
+}
+
+@keyframes moveLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-70px);
+  }
 }
