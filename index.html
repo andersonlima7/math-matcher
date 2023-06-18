@@ -11,20 +11,45 @@
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Righteous&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
-    <script src="app.js"></script>
+    <script src="app.js" type="module"></script>
+    <script
+      src="https://kit.fontawesome.com/831be6027b.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
-    <div class="game">
-      <div class="header">
-        <!-- <span class="lifes">3</span>
-        <span class="goal">100</span>
-        <span class="rounds">5</span> -->
+    <section class="game-screen">
+      <div class="game">
+        <div class="header"></div>
+
+        <div class="content">
+          <div class="grid"></div>
+          <div class="accounts hidden"></div>
+          <button class="check-button hidden">
+            <i class="fa-solid fa-square-check fa-3x"></i>
+          </button>
+        </div>
+
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+            <h2 style="margin: 0px">Fim da fase</h2>
+            <span id="stars"></span>
+            <span id="scoreText"></span>
+            <span id="resultText"></span>
+            <span id="hits"></span>
+            <div id="results"></div>
+            <div class="modal-buttons">
+              <button id="repeatButton">Repetir Fase</button>
+              <button id="nextButton">Próxima Fase</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="content">
-        <div class="grid"></div>
-        <div class="accounts hidden"></div>
-      </div>
-    </div>
+    </section>
   </body>
 </html>

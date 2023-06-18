@@ -1,16 +1,26 @@
 "use strict";
+// Sound effects
+
+import {
+  backgroundTheme,
+  negativeSwitch,
+  matchForFour,
+  matchForThree,
+} from "./sounds.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
   const accounts = document.querySelector(".accounts");
   const header = document.querySelector(".header");
+  const checkButton = document.querySelector(".check-button");
 
   const width = 5;
-  const goal = 200; // The minimum number of points to win the game.
-  let rounds = 5; // The maximum number of rounds move the numbers.
+  const goal = 30; // The minimum number of points to win the game.
+  let rounds = 2; // The maximum number of rounds move the numbers.
   let score = 0;
-  let maxScorePossible = 0;
+  let timer = 10;
   let moved = false;
+  let finished = false;
   const roundsElement = document.createElement("span");
   roundsElement.setAttribute("class", "rounds");
 
@@ -25,22 +35,182 @@ document.addEventListener("DOMContentLoaded", () => {
     "linear-gradient(90deg, rgba(124,174,241,1) 23%, rgba(0,74,173,1) 83%)",
   ];
 
-  const updateRounds = () => {
-    rounds -= 1;
-    roundsElement.textContent = rounds;
-    console.log(rounds, "rounds");
-    if (rounds === 0) {
-      grid.classList.add("hidden");
-      accounts.classList.remove("hidden");
+  const getSumOfAccount = (accountElement) => {
+    const operands = [];
+    const operandElements =
+      accountElement.getElementsByClassName("account-operand");
+
+    let sum = 0;
+    for (let i = 0; i < operandElements.length; i++) {
+      const operandValue = parseInt(operandElements[i].textContent);
+      if (isNaN(operandValue)) {
+        return { sum: -1, operands }; // operand not a number
+      }
+      sum += operandValue;
+      operands.push(operandValue);
     }
+    return { sum, operands };
   };
+
   const updateScore = (value) => {
     if (moved) {
       score += value;
       scoreElement.textContent = score;
-      console.log(score, "score");
     }
   };
+
+  const handleButtonClick = () => {
+    const allAccounts = accounts.getElementsByClassName("account");
+    const wrongAccounts = [];
+    let accumulator = 0;
+    for (let i = 0; i < allAccounts.length; i++) {
+      const currentAccount = allAccounts[i];
+      const { sum: expected, operands } = getSumOfAccount(currentAccount);
+      let received =
+        parseInt(
+          currentAccount.getElementsByClassName("account-result")[0].value
+        ) ?? 0;
+
+      if (isNaN(received)) {
+        currentAccount.getElementsByClassName("account-result")[0].value = 0;
+        received = 0;
+      }
+
+      if (received === expected) {
+        accumulator += received;
+        currentAccount.style.backgroundColor = "green";
+      } else {
+        currentAccount.style.backgroundColor = "red";
+        wrongAccounts.push({
+          numbers: operands,
+          received: received,
+          expected: expected,
+        });
+      }
+    }
+    finished = true;
+    updateScore(accumulator);
+    openModal(wrongAccounts);
+  };
+
+  const updateRounds = () => {
+    rounds -= 1;
+    roundsElement.textContent = rounds;
+    if (rounds === 0) {
+      // no more numbers combinations
+
+      roundsElement.setAttribute("class", "timerDisplay");
+      roundsElement.textContent = timer;
+
+      grid.classList.add("hidden");
+      accounts.classList.remove("hidden");
+      checkButton.classList.remove("hidden");
+      checkButton.addEventListener("click", handleButtonClick);
+    }
+  };
+
+  const createAccount = (matchNumbers) => {
+    console.log(matchNumbers);
+    const account = document.createElement("div");
+    account.setAttribute("class", "account-answer");
+
+    for (let i = 0; i < matchNumbers.length; i++) {
+      const number = matchNumbers[i];
+      const operand = document.createElement("span");
+      operand.textContent = number;
+      operand.setAttribute("class", "account-operand");
+      account.appendChild(operand);
+
+      const operator = document.createElement("span");
+      if (i !== matchNumbers.length - 1) {
+        operator.textContent = "+";
+      } else operator.textContent = "=";
+      account.appendChild(operator);
+    }
+
+    return account;
+  };
+
+  const openModal = (wrongAccounts) => {
+    const modal = document.getElementById("myModal");
+    const resultText = score >= goal ? "Você ganhou! 😎" : "Voce perdeu!😢";
+    const numberOfAccounts = accounts.childElementCount;
+    const hits = numberOfAccounts - wrongAccounts.length;
+
+    const stars = () => {
+      if (score < goal) return 0;
+      const maxStars = 3; // max number of stars
+      const scorePercentage = (hits / numberOfAccounts) * 100; // overall score percentage
+
+      // Define the number of stars from the percentage
+      if (scorePercentage >= 100) {
+        return maxStars;
+      } else if (scorePercentage >= 50) {
+        return Math.floor((scorePercentage / 100) * maxStars) + 1;
+      } else {
+        return 1;
+      }
+    };
+
+    for (let i = 0; i < stars(); i++) {
+      const star = document.createElement("i");
+      star.setAttribute("class", "fa-solid fa-star fa-fade fa-2x");
+      document.getElementById("stars").appendChild(star);
+    }
+
+    document.getElementById("scoreText").textContent =
+      "Pontuação final: " + score;
+    document.getElementById("resultText").textContent = resultText;
+    document.getElementById("hits").textContent = `${
+      (hits / numberOfAccounts) * 100
+    }% de acerto!`;
+
+    for (let i = 0; i < wrongAccounts.length; i++) {
+      // Atualiza o texto do modal com a pontuação e o resultado
+
+      const results = document.getElementById("results");
+
+      const expectedText = document.createElement("p");
+      expectedText.textContent = "Resposta correta: ";
+      const actualText = document.createElement("p");
+      actualText.textContent = "Sua resposta: ";
+
+      const receivedResult = document.createElement("span");
+      const expectedResult = document.createElement("span");
+      const currentWrongAccount = wrongAccounts[i];
+      const receivedAccount = createAccount(currentWrongAccount.numbers);
+      const expectedAccount = receivedAccount.cloneNode(true);
+      results.appendChild(actualText);
+      receivedResult.textContent = currentWrongAccount.received;
+      receivedAccount.appendChild(receivedResult);
+      results.appendChild(receivedAccount);
+      results.appendChild(expectedText);
+      expectedResult.textContent = currentWrongAccount.expected;
+      expectedAccount.appendChild(expectedResult);
+      results.appendChild(expectedAccount);
+    }
+
+    const repeatButton = document.getElementById("repeatButton");
+    repeatButton.addEventListener("click", repeatPhase);
+
+    const nextButton = document.getElementById("nextButton");
+    nextButton.addEventListener("click", goToNextPhase);
+
+    modal.style.display = "block";
+  };
+
+  const repeatPhase = () => {
+    window.location.reload();
+  };
+
+  const goToNextPhase = () => {
+    // Lógica para ir para a próxima fase
+  };
+
+  function closeModal() {
+    var modal = document.getElementById("myModal");
+    modal.style.display = "none";
+  }
 
   // Generate numbers
   // Function to generate a random number between min and max (inclusive)
@@ -102,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  backgroundTheme.play();
   createHeader();
   createBoard();
 
@@ -140,6 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentSquare.style.backgroundImage = "";
           currentSquare.textContent = "";
         });
+        matchForFour.play();
         return numbers;
       }
     }
@@ -166,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentSquare.style.backgroundImage = "";
           currentSquare.textContent = "";
         });
+        matchForFour.play();
         return numbers;
       }
     }
@@ -195,6 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentSquare.style.backgroundImage = "";
           currentSquare.textContent = "";
         });
+        matchForThree.play();
         return numbers;
       }
     }
@@ -221,6 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentSquare.style.backgroundImage = "";
           currentSquare.textContent = "";
         });
+        matchForThree.play();
         return numbers;
       }
     }
@@ -228,7 +403,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function waitForAnimationEnd(element) {
-    console.log(element.classList.length);
     if (element.classList.length < 2) return;
     return new Promise((resolve) => {
       element.addEventListener("animationend", () => {
@@ -238,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function dragStart() {
+    console.log("dragStart");
     colorBeingDragged = this.style.backgroundImage;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
@@ -251,8 +426,6 @@ document.addEventListener("DOMContentLoaded", () => {
     colorBeingReplaced = this.style.backgroundImage;
     numberBeingReplaced = this.textContent;
     squareIdBeingReplaced = parseInt(this.id);
-    console.log(squareIdBeingReplaced);
-    console.log(squareIdBeingDragged);
 
     const draggedSquare = squares[squareIdBeingDragged];
     const replacedSquare = squares[squareIdBeingReplaced];
@@ -352,8 +525,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const isAColumnOfThree = treeColumnMatch.length > 0;
     const isARowOfThree = treeRowMatch.length > 0;
 
-    console.log(fourColumnMatch, fourRowMatch, treeColumnMatch, treeRowMatch);
-
     const validMove =
       validMoves.includes(squareIdBeingReplaced) &&
       (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree);
@@ -385,6 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateRounds();
     } else if (isSquareIdBeingReplaced && !validMove) {
       // Trying move square to a position that is not allowed.
+      negativeSwitch.play();
       removeLastClass(draggedSquare);
       removeLastClass(replacedSquare);
 
@@ -453,7 +625,6 @@ document.addEventListener("DOMContentLoaded", () => {
       firstSquareID = parseInt(this.id);
       firstClick = false;
       clickedColor = this.style.backgroundImage;
-      console.log(firstNumber);
       return;
     } else {
       const currentSquareId = parseInt(this.id);
@@ -471,11 +642,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (validMove && validColor) {
         secondNumber = parseInt(this.textContent);
         secondSquareID = currentSquareId;
-        console.log(secondNumber);
       }
     }
 
     if (firstNumber >= 0 && secondNumber >= 0) {
+      moved = true;
       // The result is a sum of the two numbers
       const firstNumberSquare = squares[firstSquareID];
       const secondNumberSquare = squares[secondSquareID];
@@ -535,30 +706,6 @@ document.addEventListener("DOMContentLoaded", () => {
     secondSquareID = "";
   }
 
-  // Check if the account is correct.
-  const verifyResult = (accountElement) => {
-    const operandElements =
-      accountElement.getElementsByClassName("account-operand");
-    const resultElement =
-      accountElement.getElementsByClassName("account-result")[0];
-
-    let sum = 0;
-    for (let i = 0; i < operandElements.length; i++) {
-      const operandValue = parseInt(operandElements[i].textContent);
-      if (isNaN(operandValue)) {
-        return false; // Se algum operando não for um número válido, retorna falso
-      }
-      sum += operandValue;
-    }
-
-    const expectedResult = parseInt(resultElement.value);
-    if (isNaN(expectedResult)) {
-      return false; // Se o resultado esperado não for um número válido, retorna falso
-    }
-
-    return sum === expectedResult;
-  };
-
   const blockGrid = () => {
     // Check if a moving is happening and block the grid accordingly.
     if (isMoving) grid.classList.add("blocked");
@@ -613,4 +760,17 @@ document.addEventListener("DOMContentLoaded", () => {
       blockGrid();
     }
   }, 100);
+
+  //Timer
+  window.setInterval(() => {
+    if (rounds === 0 && !finished) {
+      if (timer > 0) {
+        timer--;
+        roundsElement.textContent = timer;
+      } else {
+        handleButtonClick();
+        finished = true;
+      }
+    }
+  }, 1000);
 });
