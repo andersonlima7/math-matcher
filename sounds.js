@@ -21,8 +21,10 @@ export const backgroundSound = createSound(
 export const levelCompleted = createSound(
   "./assets/sounds/level-completed.wav"
 );
-
 export const levelFailed = createSound("./assets/sounds/level-failed.mp3");
+
+// Timer tick tack
+export const timerSound = createSound("./assets/sounds/timer.mp3");
 
 // Negative switch
 export const negativeSwitch = createSound(

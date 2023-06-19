@@ -3,6 +3,7 @@
 
 import {
   backgroundSound,
+  timerSound,
   levelCompleted,
   levelFailed,
   negativeSwitch,
@@ -20,12 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const width = 5;
   const goal = 30; // The minimum number of points to win the game.
-  let rounds = 2; // The maximum number of rounds move the numbers.
+  let rounds = 5; // The maximum number of rounds move the numbers.
   let score = 0;
   let timer = 10;
   let moved = false;
   let finished = false;
   let muted = false;
+  let waitForDropNumbers = false; //
   const roundsElement = document.createElement("span");
   roundsElement.setAttribute("class", "rounds");
 
@@ -77,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const handleButtonClick = () => {
+    timerSound.pause();
     const allAccounts = accounts.getElementsByClassName("account");
     const wrongAccounts = [];
     let accumulator = 0;
@@ -115,7 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
     roundsElement.textContent = rounds;
     if (rounds === 0) {
       // no more numbers combinations
-
+      timerSound.play();
+      timerSound.volume = 0.2;
+      backgroundSound.volume = 0.2;
       roundsElement.setAttribute("class", "timerDisplay");
       roundsElement.textContent = timer;
 
@@ -127,7 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const createAccount = (matchNumbers) => {
-    console.log(matchNumbers);
     const account = document.createElement("div");
     account.setAttribute("class", "account-answer");
 
@@ -443,7 +447,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function dragStart() {
-    console.log("dragStart");
     colorBeingDragged = this.style.backgroundImage;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
@@ -761,26 +764,39 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Drop new numbers once some have been cleared
-  const dropNewNumbers = () => {
+  const dropNewNumbers = async () => {
     for (let i = 0; i <= width * width - width - 1; i++) {
       const currentSquare = squares[i];
       const nextSquare = squares[i + width];
       if (nextSquare.style.backgroundImage === "" && !squareIdBeingDragged) {
+        waitForDropNumbers = true;
+        isMoving = true;
+        if (moved) currentSquare.classList.add("drop-down");
+        await waitForAnimationEnd(currentSquare);
+
         nextSquare.style.backgroundImage = currentSquare.style.backgroundImage;
         nextSquare.textContent = currentSquare.textContent;
         currentSquare.style.backgroundImage = "";
         currentSquare.textContent = "";
+        removeLastClass(currentSquare);
+
+        // currentSquare.style.transform = "translateY(70px)";
+
         const isFirstRow = i < width;
         if (isFirstRow && currentSquare.style.backgroundImage === "") {
           const randomColor = Math.floor(Math.random() * numberColors.length);
           const randomNumber = getRandomNumber(0, 30);
           currentSquare.style.backgroundImage = numberColors[randomColor];
           currentSquare.textContent = randomNumber;
+          if (moved) currentSquare.classList.add("matching-up");
+          await waitForAnimationEnd(currentSquare);
+          removeLastClass(currentSquare);
         }
       } else if (
         currentSquare.style.backgroundImage === "" &&
         nextSquare.style.backgroundImage !== "" &&
-        !squareIdBeingDragged
+        !squareIdBeingDragged &&
+        !waitForDropNumbers
       ) {
         const randomColor = Math.floor(Math.random() * numberColors.length);
         const randomNumber = getRandomNumber(0, 30);
@@ -788,6 +804,8 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSquare.textContent = randomNumber;
       }
     }
+    isMoving = false;
+    waitForDropNumbers = false;
   };
 
   squares.forEach((square) => square.addEventListener("dragstart", dragStart));
@@ -798,13 +816,15 @@ document.addEventListener("DOMContentLoaded", () => {
   squares.forEach((square) => square.addEventListener("drop", dragDrop));
   squares.forEach((square) => square.addEventListener("click", handleClick));
 
-  window.setInterval(() => {
+  window.setInterval(async () => {
     if (rounds > 0) {
-      checkRowForFour();
-      checkColumnForFour();
-      checkRowForThree();
-      checkColumnForThree();
-      dropNewNumbers();
+      if (!waitForDropNumbers) {
+        checkRowForFour();
+        checkColumnForFour();
+        checkRowForThree();
+        checkColumnForThree();
+        dropNewNumbers();
+      }
       blockGrid();
     }
   }, 100);
