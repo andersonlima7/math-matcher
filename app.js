@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const accounts = document.querySelector(".accounts");
   const header = document.querySelector(".header");
   const checkButton = document.querySelector(".check-button");
+  const musicButton = document.getElementById("musicButton");
 
   const width = 5;
   const goal = 30; // The minimum number of points to win the game.
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let timer = 10;
   let moved = false;
   let finished = false;
+  let muted = false;
   const roundsElement = document.createElement("span");
   roundsElement.setAttribute("class", "rounds");
 
@@ -37,6 +39,18 @@ document.addEventListener("DOMContentLoaded", () => {
     "linear-gradient(90deg, rgba(122,221,144,1) 23%, rgba(18,121,9,1) 83%)",
     "linear-gradient(90deg, rgba(124,174,241,1) 23%, rgba(0,74,173,1) 83%)",
   ];
+
+  const handleMusicButtonClick = () => {
+    muted = !muted;
+    const musicButton = document.getElementById("musicButton");
+    musicButton.className = "";
+    if (muted)
+      musicButton.setAttribute("class", "fa-solid fa-volume-xmark fa-2x");
+    else musicButton.setAttribute("class", "fa-solid fa-volume-high fa-2x");
+    backgroundSound.muted = muted;
+  };
+
+  musicButton.addEventListener("click", handleMusicButtonClick);
 
   const getSumOfAccount = (accountElement) => {
     const operands = [];

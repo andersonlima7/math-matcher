@@ -120,6 +120,14 @@ body {
   align-items: center;
   padding-bottom: 40px;
 }
+
+.options {
+  position: absolute;
+  left: 25px;
+  bottom: 25px;
+  cursor: pointer;
+  color: #ac1cff;
+}
 .accounts {
   display: flex;
   align-items: center;
