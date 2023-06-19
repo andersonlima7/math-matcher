@@ -2,10 +2,13 @@
 // Sound effects
 
 import {
-  backgroundTheme,
+  backgroundSound,
+  levelCompleted,
+  levelFailed,
   negativeSwitch,
   matchForFour,
   matchForThree,
+  matchForTwo,
 } from "./sounds.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -132,14 +135,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const openModal = (wrongAccounts) => {
+    backgroundSound.pause();
     const modal = document.getElementById("myModal");
-    const resultText = score >= goal ? "Você ganhou! 😎" : "Voce perdeu!😢";
+    const win = score >= goal;
+    const resultText = win ? "Você ganhou! 😎" : "Voce perdeu!😢";
     const numberOfAccounts = accounts.childElementCount;
     const hits = numberOfAccounts - wrongAccounts.length;
+    const maxStars = 3; // max number of stars
+
+    if (win) levelCompleted.play();
+    else levelFailed.play();
 
     const stars = () => {
-      if (score < goal) return 0;
-      const maxStars = 3; // max number of stars
+      if (!win) return 0;
       const scorePercentage = (hits / numberOfAccounts) * 100; // overall score percentage
 
       // Define the number of stars from the percentage
@@ -152,10 +160,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    for (let i = 0; i < stars(); i++) {
-      const star = document.createElement("i");
-      star.setAttribute("class", "fa-solid fa-star fa-fade fa-2x");
-      document.getElementById("stars").appendChild(star);
+    const numberOfStars = stars();
+
+    if (numberOfStars > 0) {
+      for (let i = 0; i < maxStars; i++) {
+        const star = document.createElement("i");
+        star.setAttribute("class", "fa-solid fa-star fa-fade fa-2x");
+        if (i + 1 <= numberOfStars) star.classList.add("stars-earned");
+        document.getElementById("stars").appendChild(star);
+      }
     }
 
     document.getElementById("scoreText").textContent =
@@ -192,9 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const repeatButton = document.getElementById("repeatButton");
     repeatButton.addEventListener("click", repeatPhase);
-
     const nextButton = document.getElementById("nextButton");
     nextButton.addEventListener("click", goToNextPhase);
+
+    if (!win) {
+      nextButton.classList.add("hidden");
+    }
 
     modal.style.display = "block";
   };
@@ -208,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function closeModal() {
-    var modal = document.getElementById("myModal");
+    const modal = document.getElementById("myModal");
     modal.style.display = "none";
   }
 
@@ -272,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  backgroundTheme.play();
+  backgroundSound.play();
   createHeader();
   createBoard();
 
@@ -625,6 +641,12 @@ document.addEventListener("DOMContentLoaded", () => {
       firstSquareID = parseInt(this.id);
       firstClick = false;
       clickedColor = this.style.backgroundImage;
+      squares[firstSquareID].classList.add("selected");
+
+      for (let i = 0; i < squares.length; i++) {
+        const currentSquare = squares[i];
+        currentSquare.setAttribute("draggable", false);
+      }
       return;
     } else {
       const currentSquareId = parseInt(this.id);
@@ -642,11 +664,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (validMove && validColor) {
         secondNumber = parseInt(this.textContent);
         secondSquareID = currentSquareId;
+      } else {
+        negativeSwitch.play();
       }
     }
 
     if (firstNumber >= 0 && secondNumber >= 0) {
       moved = true;
+
+      matchForTwo.play();
+
       // The result is a sum of the two numbers
       const firstNumberSquare = squares[firstSquareID];
       const secondNumberSquare = squares[secondSquareID];
@@ -699,6 +726,12 @@ document.addEventListener("DOMContentLoaded", () => {
       updateRounds();
       updateScore(2);
     }
+
+    for (let i = 0; i < squares.length; i++) {
+      const currentSquare = squares[i];
+      currentSquare.setAttribute("draggable", true);
+    }
+    squares[firstSquareID].classList.remove("selected");
     firstClick = true;
     firstNumber = -1;
     firstSquareID = "";

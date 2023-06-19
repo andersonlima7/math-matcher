@@ -1,7 +1,8 @@
 // Create sound effect
-const createSound = (src) => {
+const createSound = (src, loop = false) => {
   const sound = document.createElement("audio");
   sound.src = src;
+  if (loop) sound.setAttribute("loop", "true");
   sound.setAttribute("preload", "auto");
   sound.setAttribute("controls", "none");
   sound.style.display = "none";
@@ -11,7 +12,17 @@ const createSound = (src) => {
 };
 
 // Background sound
-export const backgroundTheme = createSound("./assets/sounds/background.mp3");
+export const backgroundSound = createSound(
+  "./assets/sounds/background.mp3",
+  true
+);
+
+// Level win and lose sounds
+export const levelCompleted = createSound(
+  "./assets/sounds/level-completed.wav"
+);
+
+export const levelFailed = createSound("./assets/sounds/level-failed.mp3");
 
 // Negative switch
 export const negativeSwitch = createSound(
