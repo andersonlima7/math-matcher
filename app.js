@@ -161,6 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const hits = numberOfAccounts - wrongAccounts.length;
     const maxStars = 3; // max number of stars
 
+    levelCompleted.volume = 0.2;
+    levelFailed.volume = 0.2;
     if (win) levelCompleted.play();
     else levelFailed.play();
 
