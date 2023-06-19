@@ -188,9 +188,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("scoreText").textContent =
       "Pontuação final: " + score;
     document.getElementById("resultText").textContent = resultText;
-    document.getElementById("hits").textContent = `${
-      (hits / numberOfAccounts) * 100
-    }% de acerto!`;
+    document.getElementById("hits").textContent = `${(
+      (hits / numberOfAccounts) *
+      100
+    ).toFixed(2)}% de acerto!`;
 
     for (let i = 0; i < wrongAccounts.length; i++) {
       // Atualiza o texto do modal com a pontuação e o resultado
