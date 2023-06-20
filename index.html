@@ -23,35 +23,21 @@
     ></script>
   </head>
   <body>
-    <section class="game-screen">
-      <div class="game">
-        <div class="header"></div>
-
-        <div class="content">
-          <div class="grid"></div>
-          <div class="accounts hidden"></div>
-          <button class="check-button hidden">
-            <i class="fa-solid fa-square-check fa-3x"></i>
-          </button>
-        </div>
-
-        <div id="myModal" class="modal">
-          <div class="modal-content">
-            <h2 style="margin: 0px">Fim da fase</h2>
-            <span id="stars"></span>
-            <span id="scoreText"></span>
-            <span id="resultText"></span>
-            <span id="hits"></span>
-            <div id="results"></div>
-            <div class="modal-buttons">
-              <button id="repeatButton">Repetir Fase</button>
-              <button id="nextButton">Próxima Fase</button>
-            </div>
-          </div>
-        </div>
-        <div class="options">
-          <i class="fa-solid fa-volume-high fa-2x" id="musicButton"></i>
-        </div>
+    <section class="start-menu">
+      <div class="header-menu">
+        <img src="/assets/logo.png" />
+        <!-- <i class="fa-solid fa-percent"></i> -->
+        <span class="title">Math Mania</span>
+      </div>
+      <div class="button-container">
+        <a href="/game.html">
+          <button id="playButton">Jogar</button>
+        </a>
+        <!-- <button id="settingsButton">Configurações</button> -->
+        <button id="helpButton">Ajuda</button>
+      </div>
+      <div class="options">
+        <i class="fa-solid fa-volume-high fa-2x" id="musicButton"></i>
       </div>
     </section>
   </body>
