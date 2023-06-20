@@ -448,14 +448,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function dragStart() {
+  function dragStart(e) {
     colorBeingDragged = this.style.backgroundImage;
     numberBeingDragged = this.textContent;
     squareIdBeingDragged = parseInt(this.id);
 
-    // const canvas = document.createElement("canvas");
-    // e.dataTransfer.setDragImage(canvas, 0, 0);
-    // canvas.remove();
+    const canvas = document.createElement("canvas");
+    e.dataTransfer.setDragImage(canvas, 0, 0);
+    canvas.remove();
   }
 
   async function dragDrop() {
