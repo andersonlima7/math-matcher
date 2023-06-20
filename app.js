@@ -13,10 +13,16 @@ import {
 } from "./sounds.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Obtenha os elementos HTML relevantes
   const musicButton = document.getElementById("musicButton");
-  let muted = false;
+  const helpButton = document.getElementById("helpButton");
+  const helpModal = document.getElementById("helpModal");
+  const closeButton = document.getElementsByClassName("close")[0];
+  let muted = true;
 
+  // Action on click music button, toggle the muted state.
   const handleMusicButtonClick = () => {
+    backgroundSound.play();
     muted = !muted;
     const musicButton = document.getElementById("musicButton");
     musicButton.className = "";
@@ -26,7 +32,22 @@ document.addEventListener("DOMContentLoaded", () => {
     backgroundSound.muted = muted;
   };
 
-  backgroundSound.play();
+  // Action on click help button.
+  helpButton.onclick = function () {
+    helpModal.style.display = "block"; // Exibir o modal
+  };
+
+  // Action on click close modal
+  closeButton.onclick = function () {
+    helpModal.style.display = "none"; // Ocultar o modal
+  };
+
+  // Close the modal when clicks outside it
+  window.onclick = function (event) {
+    if (event.target == helpModal) {
+      helpModal.style.display = "none"; // Ocultar o modal
+    }
+  };
 
   musicButton.addEventListener("click", handleMusicButtonClick);
 });

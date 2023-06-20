@@ -397,8 +397,9 @@ input[type="number"] {
   font-size: 25px;
   color: #005eacd3;
   font-family: Righteous;
-  text-transform: uppercase;
+
   gap: 5px;
+  position: relative;
 }
 
 .close {
@@ -407,6 +408,9 @@ input[type="number"] {
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 15px;
 }
 
 .close:hover,
@@ -414,6 +418,14 @@ input[type="number"] {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+#helpContent p {
+  font-size: 18px;
+}
+
+#helpContent img {
+  width: 300px;
 }
 
 .timerDisplay {

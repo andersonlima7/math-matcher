@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicButton = document.getElementById("musicButton");
 
   const width = 5;
-  const goal = 30; // The minimum number of points to win the game.
+  const goal = 150; // The minimum number of points to win the game.
   let rounds = 5; // The maximum number of rounds move the numbers.
   let score = 0;
-  let timer = 10;
+  let timer = 60;
   let moved = false;
   let finished = false;
   let muted = false;
