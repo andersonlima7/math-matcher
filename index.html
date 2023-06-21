@@ -5,11 +5,111 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Math Matcher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Righteous&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
-    <script src="app.js"></script>
+    <script src="app.js" type="module"></script>
+    <script
+      src="https://kit.fontawesome.com/831be6027b.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
-    <div class="solutions"></div>
-    <div class="grid"></div>
+    <section class="start-menu">
+      <div class="header-menu">
+        <img src="/assets/logo.png" />
+        <!-- <i class="fa-solid fa-percent"></i> -->
+        <span class="title">Math Mania</span>
+      </div>
+      <div class="button-container">
+        <a href="/game.html">
+          <button id="playButton">Jogar</button>
+        </a>
+        <!-- <button id="settingsButton">Configurações</button> -->
+        <button id="helpButton">Ajuda</button>
+      </div>
+
+      <div id="helpModal" class="modal">
+        <div class="modal-content" id="helpContent">
+          <span class="close">&times;</span>
+          <h2>Ajuda</h2>
+          <ol>
+            <li>
+              <h3>Objetivo do Jogo</h3>
+              <p>
+                Seu objetivo é formar combinações de 3 ou mais números da mesma
+                cor no tabuleiro para ganhar pontos. Além disso, você precisa
+                resolver as contas correspondentes aos números combinados para
+                ganhar pontos adicionais.
+              </p>
+            </li>
+            <li>
+              <h3>Movimentando os Números</h3>
+              <p>
+                Para mover os números no tabuleiro, clique e segure em um número
+                e, em seguida, arraste-o para uma posição adjacente (acima,
+                abaixo, à esquerda ou à direita) para onde deseja movê-lo.
+              </p>
+            </li>
+            <li>
+              <h3>Formando Combinações</h3>
+              <p>
+                Clique no número e, em seguida, clique em outro número adjacente
+                de mesma cor para formar uma combinação de 2 números. Reúna 3 ou
+                mais números da mesma cor em uma linha reta, tanto na horizontal
+                quanto na vertical, para formar uma combinação. Assim que uma
+                combinação for formada, os números desaparecerão e você ganhará
+                pontos.
+              </p>
+            </li>
+            <li>
+              <h3>Resolvendo Contas</h3>
+              <p>
+                Após todas as rodadas formando combinações, você terá que
+                resolver a conta correspondente aos números combinados para
+                ganhar pontos adicionais. A conta estará relacionada aos números
+                envolvidos na combinação.
+              </p>
+            </li>
+            <li>
+              <h3>Número de Rodadas e Tempo</h3>
+              <p>
+                Você terá um número específico de rodadas para fazer as
+                combinações e deve resolver as contas em um dado tempo. Planeje
+                seus movimentos com cuidado para maximizar sua pontuação dentro
+                desse limite.
+              </p>
+            </li>
+            <li>
+              <h3>Alcançando a Meta de Pontos</h3>
+              <p>
+                Ao final do jogo, você será avaliado com base na sua pontuação
+                total. Para vencer, você precisará alcançar a meta de pontos
+                estabelecida. Desafie-se para atingir a maior pontuação
+                possível!
+              </p>
+            </li>
+
+            <li>
+              <p>Clique na imagem abaixo para ampliar</p>
+              <a href="/assets/help.png" target="_blank">
+                <img src="/assets/help.png" />
+              </a>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="options">
+        <i class="fa-solid fa-volume-xmark fa-2x" id="musicButton"></i>
+      </div>
+    </section>
   </body>
 </html>
